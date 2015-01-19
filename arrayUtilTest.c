@@ -45,5 +45,42 @@ void test_create_returns_ArrayUtil_instance_for_typesize_and_length (){
 	result = create(typesize,length);
 	assertEqual(areEqual(a,result),1);
 	free(result.base_ptr);
-
 }
+
+void test_resize_returns_shrinked_resized_ArrayUtil_for_ArrayUtil_and_length (){
+	int i,length = 5,value;
+	int* array = (int*)malloc(sizeof(int)*5);
+	int expected_array[] = {9,8,7};
+	ArrayUtil a,result,expected;
+
+	for(i=0,value=9 ; i<length ; i++){
+		array[i] = value--;
+	}
+
+	a = initializeArrayUtil(array,sizeof(int),length);
+	result = resize(a,3);
+	expected = initializeArrayUtil(expected_array,sizeof(int),3);
+	assertEqual(areEqual(expected,result),1);
+}
+
+void test_findIndex_returns_the_3_if_the_search_element_is_on_3rd_location (){
+	float x = 3.5;
+	float array[] = {0.1,1.8,2.0,3.5,4};
+	ArrayUtil util = initializeArrayUtil(array,sizeof(float),5);
+	assertEqual(findIndex(util,&x),3);
+}
+
+
+void test_findIndex_returns_neg_1_if_the_search_element_not_found (){
+	int x = 3;
+	int array[] = {1,8,21,2,4};
+	ArrayUtil util = initializeArrayUtil(array,sizeof(int),5);
+	assertEqual(findIndex(util,&x),-1);
+}
+
+/*void test_findIndex_returns_1_if_the_search_element_is_found_at_first_location (){
+	char x = 'd';
+	char array[] = {'a','d','x','v'};
+	ArrayUtil util = initializeArrayUtil(array,sizeof(char),4);
+	assertEqual(findIndex(util,&x),1);
+}*/

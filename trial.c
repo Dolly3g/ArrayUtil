@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 typedef struct ArrayUtil ArrayUtil;
 
 struct ArrayUtil {
@@ -10,14 +11,15 @@ struct ArrayUtil {
 
 
 int main(int argc, char const *argv[]){
-	int array[] = {1,2,3};
-	ArrayUtil a;
-	
-	a.base_ptr = array;
-	a.typesize = sizeof(int);
-	a.length = 3;
+	int *array;
+	array = (int*)malloc(sizeof(int)*2);
+	array[0] = 1;
+	array[1] = 2;
+	printf("%d %d %d\n",array[0],array[1],array[2] );
+	array = realloc(array,4*4);	
+	array[2] = 3;
+	printf("%d %d\n",array[0],array[2] );
 
-	printf("%p %d %d\n",a.base_ptr,a.typesize,a.length );
 
 	return 0;
-}
+}	

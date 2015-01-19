@@ -1,5 +1,6 @@
 #include "arrayUtil.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 ArrayUtil initializeArrayUtil (void* base_pointer,int typesize,int length){
 	ArrayUtil a;
@@ -31,3 +32,21 @@ ArrayUtil create (int typesize, int length){
 	ArrayUtil result = initializeArrayUtil(array,typesize,length);
 	return result;
 }
+
+ArrayUtil resize (ArrayUtil a, int new_length){
+	int size = new_length*a.typesize;
+	a.length = new_length;
+	a.base_ptr = realloc(a.base_ptr,size);
+	return a;
+}
+
+int findIndex(ArrayUtil util,void* x){
+	int i;
+	float* _x = x;
+	float* base_ptr = util.base_ptr;
+	for(i=0 ; i<util.length ; i++){
+		if(base_ptr[i] == *_x)
+			return i;
+	}
+	return -1;
+};

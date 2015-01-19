@@ -7,5 +7,7 @@ struct ArrayUtil {
 };
 
 int areEqual(ArrayUtil a,ArrayUtil b);
-ArrayUtil create(int typesize,int length);
+ArrayUtil create(int,int);
+ArrayUtil resize(ArrayUtil a,int length);
 ArrayUtil initializeArrayUtil(void* , int,int);
+int findIndex(ArrayUtil,void*);
