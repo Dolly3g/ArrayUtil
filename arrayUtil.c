@@ -58,3 +58,16 @@ void dispose(ArrayUtil util){
 	free(util.base_ptr);
 	util.base_ptr = NULL;
 }
+
+void* findFirst (ArrayUtil util, int (*fn)(void*,void*),void* hint){
+	int i;
+	int base_util;
+	void *item;
+	for(i=0 ; i<util.length ; i++){
+		base_util = ((int*)util.base_ptr)[i];
+		item = &base_util;
+		if(fn(hint,item))
+			return item;
+	}
+	return hint;
+}

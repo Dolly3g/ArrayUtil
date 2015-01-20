@@ -12,3 +12,4 @@ ArrayUtil resize(ArrayUtil,int);
 ArrayUtil initializeArrayUtil(void*,int,int);
 int findIndex(ArrayUtil,void*);
 void dispose(ArrayUtil);
+void* findFirst (ArrayUtil, int(*)(void*,void*),void*);

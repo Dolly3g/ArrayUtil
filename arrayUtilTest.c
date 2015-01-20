@@ -108,3 +108,41 @@ void test_dispose_returns (){
 	//assertEqual((int*)util.base_ptr,NULL);
 }
 
+int isEven (void* hint, void *item){
+	int* _hint = (int*)hint;
+	int* _item = (int*)item;
+	return *_item % *_hint == 0;
+}
+
+void test_findFirst_returns_6_when_asked_for_even_number (){
+	int (*isEven_ptr)(void*,void*);
+	int array[4] = {1,7,6,8};
+	int hint = 2;
+	int* result;
+	ArrayUtil util = initializeArrayUtil(array,sizeof(int),4);
+
+	isEven_ptr = &isEven;
+
+	result = (int*)findFirst(util,isEven_ptr,(void*)&hint);
+	assertEqual(*result,6);
+
+}
+
+int isGreaterThan (void *hint, void *item){
+	int* _hint = (int*)hint;
+	int* _item = (int*)item;
+	return *_item > *_hint;
+}
+
+void test_findFirst_12_when_asked_for_divisible_by_6 (){
+	int (*isGreaterThan_ptr)(void*,void*);
+	int array[6] = {1,7,6,80,21,67};
+	int hint = 50 ;
+	int* result;
+	ArrayUtil util = initializeArrayUtil(array,sizeof(int),6);
+
+	isGreaterThan_ptr = &isGreaterThan;
+
+	result = (int*)findFirst(util,isGreaterThan_ptr,(void*)&hint);
+	assertEqual(*result,80);
+}
