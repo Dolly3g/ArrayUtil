@@ -49,17 +49,32 @@ void test_create_returns_ArrayUtil_instance_for_typesize_and_length (){
 
 void test_resize_returns_shrinked_resized_ArrayUtil_for_ArrayUtil_and_length (){
 	int i,length = 5,value;
-	int* array = (int*)malloc(sizeof(int)*5);
+	int* input_array = (int*)malloc(sizeof(int)*5);
 	int expected_array[] = {9,8,7};
+
 	ArrayUtil a,result,expected;
 
 	for(i=0,value=9 ; i<length ; i++){
-		array[i] = value--;
+		input_array[i] = value--;
 	}
 
-	a = initializeArrayUtil(array,sizeof(int),length);
-	result = resize(a,3);
+	a = initializeArrayUtil(input_array,sizeof(int),length);
 	expected = initializeArrayUtil(expected_array,sizeof(int),3);
+	result = resize(a,3);
+	assertEqual(areEqual(expected,result),1);
+}
+
+void test_resize_returns_lareger_resized_ArrayUtil_0_initislized_for_ArrayUtil_and_length (){
+	int i,length = 2,value;
+	int* input_array = (int*)malloc(sizeof(int)*2);
+	int expected_array[] = {9,10,0,0,0};
+
+	ArrayUtil a,result,expected;
+	input_array[0] = 9;
+	input_array[1] = 10;
+	a = initializeArrayUtil(input_array,sizeof(int),length);
+	expected = initializeArrayUtil(expected_array,sizeof(int),5);
+	result = resize(a,5);
 	assertEqual(areEqual(expected,result),1);
 }
 
@@ -84,3 +99,12 @@ void test_findIndex_returns_neg_1_if_the_search_element_not_found (){
 	ArrayUtil util = initializeArrayUtil(array,sizeof(char),4);
 	assertEqual(findIndex(util,&x),1);
 }*/
+
+void test_dispose_returns (){
+	int length=3;
+	int *array = (int*)malloc(sizeof(int)*length);
+	ArrayUtil util = initializeArrayUtil(array,sizeof(int),length);
+	dispose(util);
+	//assertEqual((int*)util.base_ptr,NULL);
+}
+

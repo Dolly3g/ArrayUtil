@@ -6,8 +6,9 @@ struct ArrayUtil {
 	int length;
 };
 
-int areEqual(ArrayUtil a,ArrayUtil b);
+int areEqual(ArrayUtil,ArrayUtil);
 ArrayUtil create(int,int);
-ArrayUtil resize(ArrayUtil a,int length);
-ArrayUtil initializeArrayUtil(void* , int,int);
+ArrayUtil resize(ArrayUtil,int);
+ArrayUtil initializeArrayUtil(void*,int,int);
 int findIndex(ArrayUtil,void*);
+void dispose(ArrayUtil);
