@@ -2,13 +2,35 @@
 #include "expr_assert.h"
 #include <stdlib.h>
 
-void test_areEqual_returns_1_for_same_arrays () {
+void test_areEqual_returns_1_for_same_int_arrays () {
 	int array1[] = {1,2,3};
 	int array2[] = {1,2,3};
 
 	ArrayUtil a1,a2;
 	a1 = initializeArrayUtil(array1,sizeof(int),3);
 	a2 = initializeArrayUtil(array2,sizeof(int),3);
+
+	assertEqual(areEqual(a1,a2),1);
+}
+
+void test_areEqual_returns_1_for_same_float_arrays () {
+	float array1[] = {1.2,2.2,3.2};
+	float array2[] = {1.2,2.2,3.2};
+
+	ArrayUtil a1,a2;
+	a1 = initializeArrayUtil(array1,sizeof(float),3);
+	a2 = initializeArrayUtil(array2,sizeof(float),3);
+
+	assertEqual(areEqual(a1,a2),1);
+}
+
+void test_areEqual_returns_1_for_same_char_arrays () {
+	char array1[] = {'c','a','r'};
+	char array2[] = {'c','a','r'};
+
+	ArrayUtil a1,a2;
+	a1 = initializeArrayUtil(array1,sizeof(char),3);
+	a2 = initializeArrayUtil(array2,sizeof(char),3);
 
 	assertEqual(areEqual(a1,a2),1);
 }
@@ -42,6 +64,18 @@ void test_create_returns_ArrayUtil_instance_for_typesize_and_length (){
 	ArrayUtil a;
 	ArrayUtil result;
 	a = initializeArrayUtil(array,sizeof(int),length);
+	result = create(typesize,length);
+	assertEqual(areEqual(a,result),1);
+	free(result.base_ptr);
+}
+
+void test_create_returns_ArrayUtil_instance_for_typesize_and_length_that_can_be_used_for_char_arrays (){
+	int typesize = sizeof(int);
+	int length = 3;
+	char array[] = {0,0,0};
+	ArrayUtil a;
+	ArrayUtil result;
+	a = initializeArrayUtil(array,sizeof(char),length);
 	result = create(typesize,length);
 	assertEqual(areEqual(a,result),1);
 	free(result.base_ptr);

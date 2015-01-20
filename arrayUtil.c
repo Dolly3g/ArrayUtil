@@ -12,11 +12,11 @@ ArrayUtil initializeArrayUtil (void* base_pointer,int typesize,int length){
 
 int areEqual (struct ArrayUtil a, struct ArrayUtil b){
 	int i;
-	int *base_a = (int*)a.base_ptr;
-	int *base_b = (int*)b.base_ptr;
+	char *base_a = (char*)a.base_ptr;
+	char *base_b = (char*)b.base_ptr;
 
 	if(a.typesize == b.typesize && a.length == b.length){
-		for(i=0 ; i<a.length ; i++){
+		for(i=0 ; i<a.length*a.typesize ; i++){
 			if(base_a[i] != base_b[i]){
 				return 0;
 			}
@@ -27,7 +27,7 @@ int areEqual (struct ArrayUtil a, struct ArrayUtil b){
 
 ArrayUtil create (int typesize, int length){
 	int i;
-	int *array = calloc(typesize,length);
+	char *array = calloc(typesize,length*typesize);
 	ArrayUtil result = initializeArrayUtil(array,typesize,length);
 	return result;
 }
@@ -71,3 +71,4 @@ void* findFirst (ArrayUtil util, int (*fn)(void*,void*),void* hint){
 	}
 	return hint;
 }
+
