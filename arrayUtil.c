@@ -22,11 +22,12 @@ int areEqual (struct ArrayUtil a, struct ArrayUtil b){
 			}
 		}
 	}
+	else
+		return 0;
 	return 1;
 }
 
 ArrayUtil create (int typesize, int length){
-	int i;
 	char *array = calloc(typesize,length*typesize);
 	ArrayUtil result = initializeArrayUtil(array,typesize,length);
 	return result;
@@ -34,9 +35,9 @@ ArrayUtil create (int typesize, int length){
 
 ArrayUtil resize (ArrayUtil a, int new_length){
 	int i,size = new_length*a.typesize;
-	int* base_a = (int*)a.base_ptr;
+	char* base_a = (char*)a.base_ptr;
 	a.base_ptr = realloc(a.base_ptr,size);
-	for (i = a.length ; i < new_length ; i++) {
+	for (i = a.length*a.typesize ; i <= size ; i++) {
 		base_a[i] = 0;
 	}
 	a.length = new_length;
@@ -44,7 +45,7 @@ ArrayUtil resize (ArrayUtil a, int new_length){
 }
 
 int findIndex(ArrayUtil util,void* x){
-	int i;
+	int i,size = util.typesize*util.length;
 	float* _x = x;
 	float* base_ptr = util.base_ptr;
 	for(i=0 ; i<util.length ; i++){
@@ -52,6 +53,7 @@ int findIndex(ArrayUtil util,void* x){
 			return i;
 	}
 	return -1;
+
 };
 
 void dispose(ArrayUtil util){
@@ -69,6 +71,6 @@ void* findFirst (ArrayUtil util, int (*fn)(void*,void*),void* hint){
 		if(fn(hint,item))
 			return item;
 	}
-	return hint;
+	return NULL;
 }
 
