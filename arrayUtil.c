@@ -74,3 +74,24 @@ void* findFirst (ArrayUtil util, int (*fn)(void*,void*),void* hint){
 	return NULL;
 }
 
+void forEach(ArrayUtil util, void (*operation)(void*, void*), void* hint){
+	int i;
+	int base;
+	void* base_of_ele;
+	for (i = 0 ; i<util.length ; i++) {
+		base = ((int*)util.base_ptr)[i];
+		base_of_ele = (void*)&base;
+		operation(hint,&((int*)util.base_ptr)[i]);
+	}
+};
+
+void* reduce(ArrayUtil util, void* (*reducer)(void*,void*,void*),void* hint,void* pv){
+	int i;
+	void* cv;
+	for(i=0 ; i<util.length ; i++){
+		cv = (void*)&((int*)util.base_ptr)[i];
+		pv = reducer(hint,pv,(cv));
+	}
+	return pv;
+};
+

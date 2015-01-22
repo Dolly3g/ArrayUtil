@@ -90,7 +90,7 @@ void test_resize_returns_shrinked_ArrayUtil_when_length_is_reduced (){
 	ArrayUtil a,result,expected;
 
 	input_array[0] = 1;
-	input_array[1] = 2;
+	input_array[1] = 200;
 
 	a = initializeArrayUtil(input_array,INT_SIZE,2);
 	expected = initializeArrayUtil(expected_array,INT_SIZE,1);
@@ -186,4 +186,38 @@ void test_findFirst_returns_12_when_asked_for_integers_divisible_by_6 (){
 	int* result = (int*)findFirst(util,isGreaterThan_ptr,(void*)&hint);
 
 	assertEqual(*result,80);
+}
+
+void operation (void* hint, void* item){
+	int* _hint = hint;
+	int* _item = item;
+	*_item += *_hint;
+
+}
+
+void test_forEach_runs_task_for_every_integer (){
+	int hint = 2;
+	int array[] = {1,2};
+	ArrayUtil util = initializeArrayUtil(array,INT_SIZE,2);
+	void (*fn_ptr)(void*,void*) = &operation;
+	forEach(util,fn_ptr,(void*)&hint);
+	assertEqual(array[0],3);
+}
+
+void* sum (void* hint, void* pv, void* cv){
+	int* _pv = (int*)pv;
+	int* _cv = (int*)cv;
+	int* result = (int*)malloc(INT_SIZE); 
+	*result = *_pv + *_cv;
+	return result;
+}
+
+void test_reduce_returns_sum_of_all_integers_of_array (){
+	int hint = 2;
+	int initial_value = 0;
+	int array[] = {1,2,3};
+	ArrayUtil util = initializeArrayUtil(array,INT_SIZE,3);
+	void* (*fn_ptr)(void*,void*,void*) = &sum;
+	int res = *(int*)reduce(util,fn_ptr,(void*)&hint,(void*)&initial_value);
+	assertEqual(res,6);
 }

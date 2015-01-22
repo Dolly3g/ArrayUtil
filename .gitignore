@@ -1,3 +1,4 @@
 *.core
 *.exe
 *.o
+spike.c
