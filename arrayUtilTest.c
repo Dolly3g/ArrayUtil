@@ -221,3 +221,18 @@ void test_reduce_returns_sum_of_all_integers_of_array (){
 	int res = *(int*)reduce(util,fn_ptr,(void*)&hint,(void*)&initial_value);
 	assertEqual(res,6);
 }
+
+int isMultipleOf (void* hint,void* item){
+	int _hint = *((int*)hint);
+	int _item = *((int*)item);
+	return _item%_hint != 0;
+
+}
+
+void test_count_returns_number_of_even_numbers_in_array_util (){
+	int array[] = {9,6,4,3,7,1};
+	int hint = 3;
+	int (*isMultipleOf_ptr)(void*,void*) = &isMultipleOf;
+	ArrayUtil util = initializeArrayUtil((void*)array,INT_SIZE,6);
+	assertEqual(count(util,isMultipleOf_ptr,(void*)&hint),3);
+}

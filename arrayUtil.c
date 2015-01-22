@@ -95,3 +95,12 @@ void* reduce(ArrayUtil util, void* (*reducer)(void*,void*,void*),void* hint,void
 	return pv;
 };
 
+int count(ArrayUtil util, int (*fn_ptr)(void *, void *), void *hint){
+	int i,count =0;
+	void* base;
+	for(i=0 ; i<util.length ; i++) {
+		base = (void*)&((int*)util.base_ptr)[i];
+		fn_ptr(hint,base) && count++;
+	}
+	return count;
+};

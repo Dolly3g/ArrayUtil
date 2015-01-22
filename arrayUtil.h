@@ -15,3 +15,4 @@ void dispose(ArrayUtil);
 void* findFirst (ArrayUtil, int(*)(void*,void*),void*);
 void forEach (ArrayUtil,void(*)(void*,void*),void*);
 void* reduce (ArrayUtil,void*(*)(void*,void*,void*),void*,void*);
+int count (ArrayUtil,int(*)(void*,void*),void*);
