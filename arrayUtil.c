@@ -1,6 +1,7 @@
 #include "arrayUtil.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 ArrayUtil initializeArrayUtil (void* base_pointer,int typesize,int length){
 	ArrayUtil a;
@@ -14,7 +15,6 @@ int areEqual (struct ArrayUtil a, struct ArrayUtil b){
 	int i;
 	char *base_a = (char*)a.base_ptr;
 	char *base_b = (char*)b.base_ptr;
-
 	if(a.typesize == b.typesize && a.length == b.length){
 		for(i=0 ; i<a.length*a.typesize ; i++){
 			if(base_a[i] != base_b[i]){
@@ -36,29 +36,34 @@ ArrayUtil create (int typesize, int length){
 ArrayUtil resize (ArrayUtil a, int new_length){
 	int i,size = new_length*a.typesize;
 	char* base_a = (char*)a.base_ptr;
-	a.base_ptr = realloc(a.base_ptr,size);
-	for (i = a.length*a.typesize ; i <= size ; i++) {
-		base_a[i] = 0;
+
+	char* array = calloc(new_length,size);
+	ArrayUtil result = {array,a.typesize,new_length};
+	for (i =0 ; i < size ; i++) {
+		if(i > a.typesize*a.length-1){
+			break;
+		}
+		array[i] = base_a[i];
 	}
-	a.length = new_length;
-	return a;
+	return result;
 }
 
-int findIndex(ArrayUtil util,void* x){
-	int i,size = util.typesize*util.length;
-	float* _x = x;
-	float* base_ptr = util.base_ptr;
-	for(i=0 ; i<util.length ; i++){
-		if(base_ptr[i] == *_x)
+int findIndex(ArrayUtil util,void* ele){
+	int i=0,size = util.typesize*util.length;
+	char* base = ((char*)util.base_ptr);
+	char* target = ((char*)base+size);
+	while(base<target){
+		if(memcmp(base,ele,util.typesize) == 0 ){
 			return i;
+		}
+		base+=util.typesize;
+		i++;
 	}
 	return -1;
-
 };
 
 void dispose(ArrayUtil util){
 	free(util.base_ptr);
-	util.base_ptr = NULL;
 }
 
 void* findFirst (ArrayUtil util, int (*fn)(void*,void*),void* hint){
