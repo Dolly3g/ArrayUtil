@@ -67,6 +67,16 @@ void dispose(ArrayUtil util){
 }
 
 void* findFirst (ArrayUtil util, int (*fn)(void*,void*),void* hint){
+	void* base = util.base_ptr;
+	void* target = util.base_ptr + util.typesize*util.length;
+	for(; base<=target; base+=util.typesize){
+		if(fn(hint,base))
+			return base;
+	}
+	return NULL;
+}
+
+/*void* findFirst (ArrayUtil util, int (*fn)(void*,void*),void* hint){
 	int i;
 	int base_util;
 	void *item;
@@ -78,7 +88,7 @@ void* findFirst (ArrayUtil util, int (*fn)(void*,void*),void* hint){
 	}
 	return NULL;
 }
-
+*/
 void forEach(ArrayUtil util, void (*operation)(void*, void*), void* hint){
 	int i;
 	int base;
@@ -109,3 +119,13 @@ int count(ArrayUtil util, int (*fn_ptr)(void *, void *), void *hint){
 	}
 	return count;
 };
+
+void* findLast(ArrayUtil util, int (*fn)(void*, void*), void* hint){
+	void* base = util.base_ptr;
+	void* target = util.base_ptr + (util.length-1)*util.typesize;
+	for (; target>base ; target-=util.typesize) {
+		if(fn(hint,(void*)target))
+			return (void*)target;
+	}
+	return NULL;
+}

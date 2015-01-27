@@ -1,5 +1,5 @@
 typedef struct ArrayUtil ArrayUtil;
-typedef char String[256];
+typedef char* String;
 typedef int int10[10];
 typedef float float5[5];
 typedef struct Stud { char name[27]; int clas ; float percentage; } Student;
@@ -7,6 +7,8 @@ typedef void *void_star;
 typedef char *char_star;
 typedef int *int_star;
 typedef float *float_star;
+typedef int (MatchFunc)(void*,void*);
+
 
 
 #define log(test_description) int log = (printf("\t     %s\n\n", test_description))
@@ -41,3 +43,4 @@ void* findFirst (ArrayUtil, int(*)(void*,void*),void*);
 void forEach (ArrayUtil,void(*)(void*,void*),void*);
 void* reduce (ArrayUtil,void*(*)(void*,void*,void*),void*,void*);
 int count (ArrayUtil,int(*)(void*,void*),void*);
+void* findLast (ArrayUtil,int(*)(void*,void*),void*);

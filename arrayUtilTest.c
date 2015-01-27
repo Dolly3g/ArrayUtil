@@ -5,15 +5,20 @@
 #include "arrayUtil.h"
 #include "expr_assert.h"
 #include <stdlib.h>
+#include <string.h>
 #include <stdio.h>
+
+
+Student array_3_Students[3] = {{"Abu", 2, 88.5},{"Babu", 2, 98.25},{"Cabu", 2, 68.0}};
 
 ArrayUtil util,expectedUtil;ArrayUtil util1,util2;
 typedef struct Student{
+	String name;
     int rollno;
     float age;
 } student;
 
-/*void test_areEqual_returns_0_for_different_sized_arrays () {
+void test_areEqual_returns_0_for_different_sized_arrays () {
 	int array1[] = {1,2,3};
 	char array2[] = "car";
 	ArrayUtil a1,a2;
@@ -131,8 +136,6 @@ void test_resize_returns_stretched_resized_char_ArrayUtil_0_initialized_for_Arra
 	assertEqual(areEqual(expected,result),1);
 	free(input_array);
 }
-*/
-
 
 void test_findIndex_returns_neg_1_if_the_search_int_is_not_found (){
 	int x = 3;
@@ -193,11 +196,26 @@ void test_findFirst_returns_12_when_asked_for_integers_divisible_by_6 (){
 	assertEqual(*result,80);
 }
 
+int isVowel (void* hint, void* item){
+	char* _item = (char*)item;
+	if(*_item == 'a' || *_item == 'e' || *_item == 'i' || *_item == 'o' || *_item == 'u'){
+		return 1;
+	}
+	return 0;
+}
+void test_findFirst_returns_e_when_asked_vowels (){
+	char array[4] = {'d','e','d','a'};
+	int hint;
+	int (*isVowel_ptr)(void*,void*) = &isVowel;
+	ArrayUtil util = initializeArrayUtil(array,CHAR_SIZE,4);
+	char* result = (char*)findFirst(util,isVowel_ptr,(void*)&hint);
+	assertEqual(*result,101);
+}
+
 void operation (void* hint, void* item){
 	int* _hint = hint;
 	int* _item = item;
 	*_item += *_hint;
-
 }
 
 void test_forEach_runs_task_for_every_integer (){
@@ -242,6 +260,32 @@ void test_count_returns_number_of_even_numbers_in_array_util (){
 	assertEqual(count(util,isMultipleOf_ptr,(void*)&hint),3);
 }
 
+void test_findLast_returns_last_even_number_from_integer_array(){
+	int array[] = {1,2,4,5};
+	int hint = 2;
+	ArrayUtil util = initializeArrayUtil((void*)array,INT_SIZE,4);
+	int(*fn)(void*,void*) = &isEven;
+	int* result = (int*)findLast(util,fn,(void*)&hint);
+	assertEqual(*result,4);
+}
+
+void test_findLast_returns_NULL_if_element_is_not_found(){
+	int array[] = {1,9,59,5};
+	void* hint;
+	ArrayUtil util = initializeArrayUtil((void*)array,INT_SIZE,4);
+	int(*fn)(void*,void*) = &isEven;
+	int result = (int)findLast(util,fn,(void*)&hint);
+	assertEqual(result,'\0');
+}
+
+void test_findLast_returns_last_vowel_from_char_array(){
+	char array[] = "okies";
+	void* hint;
+	ArrayUtil util = initializeArrayUtil((void*)array,CHAR_SIZE,4);
+	int(*fn)(void*,void*) = &isVowel;
+	char* result = (char*)findLast(util,fn,(void*)&hint);
+	assertEqual(*result,'e');
+}
 //------------------------------------------------------------------------------------------------------------------
 
 void test_create_returns_same_array_if_array_lengths_are_same_and_values_are_same() {
@@ -620,13 +664,13 @@ void test_create_004(){
 	assertEqual(areEqual(util1, util2), YES);
 	dispose(util2);
 }
-void test_create_005(){
+/*void test_create_005(){
 	log("returns an ArrayUtil with bytes initialized to ZERO for char[256]");
 	ArrayUtil util1 = {array_empty_strings, sizeOf_String, 2};
 	ArrayUtil util2 = create(sizeOf_String, 2);
 	assertEqual(areEqual(util1, util2), YES);
 	dispose(util2);
-}
+}*/
 void test_create_006(){
 	log("returns an ArrayUtil with bytes initialized to ZERO for int[10]");
 	ArrayUtil util1 = {array_int10_0s, sizeOf_int10, 1};
@@ -669,3 +713,76 @@ void test_create_011(){
 	assertEqual(areEqual(util1, util2), YES);
 	dispose(util2);
 }
+void test_findIndex_returns_index_of_the_String_element_where_it_presents(){
+    String array1[] = {"Mahesh","Kumar","Kolla"};
+    String element = "Kumar";
+    ArrayUtil util1 = {array1,sizeof(String),3};
+    assertEqual(findIndex(util1,&element), 1);
+}
+
+void test_findIndex_returns_index_of_the_char_element_where_it_presents(){
+    char array1[] = {'m','a','h','e','s','h'};
+    char element = 's';
+    ArrayUtil util1 = {array1,sizeof(char),6};
+    assertEqual(findIndex(util1,&element), 4);
+}
+
+void test_findIndex_returns_index_of_the_float_element_where_it_presents(){
+    float array1[] = {1.1,2.2,3.3,4.4};
+    float element = 4.4;
+    ArrayUtil util1 = {array1,sizeof(float),4};
+    assertEqual(findIndex(util1,&element), 3);
+}
+
+void test_findIndex_returns_index_of_the_integer_element_where_it_presents(){
+    int array1[] = {1,2,3,4,5};
+    int element = 2;
+    ArrayUtil util1 = {array1,sizeof(int),5};
+    assertEqual(findIndex(util1,&element), 1);
+}
+
+int isGreaterThanHint (void* hint, void* element) {
+	return (*((float*)element) > *((float*)hint)) ? 1 : 0;
+}
+
+void test_findFirst_gives_occurence_of_first_element_in_floatArray_greaterThan5 (){
+	float hint = 5.1;
+	float *result;
+	MatchFunc *match = &isGreaterThanHint;
+	ArrayUtil util = {(float[]){3.1,2.4,1.6,3.7,8.3,0.1},FLOAT_SIZE,6};
+	result = (float*)findFirst(util,match,(void*)&hint);
+	assertEqual(*result,(float)8.3);
+}
+
+int hasPassed(void* hint, void *item){
+	Student student = *(Student*)item;
+	float passMark = *(float*)hint;
+	return (student.percentage >= passMark);
+}
+void test_findFirst_returns_the_first_student_who_has_passed_the_exam_struct_array(){
+	ArrayUtil a = {array_3_Students,sizeof(Student),3};
+	Student *got;
+	String name;
+	float passMark = 80.0;
+	got = (Student*)findFirst(a,hasPassed,&passMark);
+	assertEqual(strcmp(got->name,"Abu"),0);
+}
+
+int isUpperCase(void* a,void *b){
+	int _a = *((char*)a);
+	int _b = *((char*)b);
+	return _a==_b ? 1 : 0;	
+}
+
+void test_findLast_returns_the_last_element_if_there_is_match_in_character_array(){
+	ArrayUtil a = {(char[]){'a','b','C','D','e'},CHAR_SIZE,5};
+	int x = 'D';
+	assertEqual(*((char*)findLast(a,isUpperCase,&x)),x);
+}
+
+void test_findLast_returns_the_last_element_if_there_is_match_in_integer_array(){
+	ArrayUtil a = {(int[]){1,3,5,8,10},sizeof(int),5};
+	int x = 2;
+	assertEqual(*((int*)findLast(a,isEven,&x)),10);
+}
+
