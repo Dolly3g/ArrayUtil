@@ -41,6 +41,8 @@ int findIndex(ArrayUtil,void*);
 void dispose(ArrayUtil);
 void* findFirst (ArrayUtil, int(*)(void*,void*),void*);
 void forEach (ArrayUtil,void(*)(void*,void*),void*);
+void map(ArrayUtil, ArrayUtil,void(*)(void*,void*,void*), void*);
 void* reduce (ArrayUtil,void*(*)(void*,void*,void*),void*,void*);
 int count (ArrayUtil,int(*)(void*,void*),void*);
 void* findLast (ArrayUtil,int(*)(void*,void*),void*);
+int filter(ArrayUtil,int(*)(void*,void*),void*,void**,int);

@@ -2,14 +2,22 @@
 #define CHAR_SIZE sizeof(char)
 #define FLOAT_SIZE sizeof(float)
 #define DOUBLE_SIZE sizeof(double)
+#define POINTER_SIZE sizeof(int*)
 #include "arrayUtil.h"
 #include "expr_assert.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <ctype.h>
 
 
 Student array_3_Students[3] = {{"Abu", 2, 88.5},{"Babu", 2, 98.25},{"Cabu", 2, 68.0}};
+
+int isGreaterThanHint (void* hint, void* element) {
+	float _ele = *((float*)element);
+	float _hint = *((float*)hint);
+	return _ele > _hint ? 1 : 0;
+}
 
 ArrayUtil util,expectedUtil;ArrayUtil util1,util2;
 typedef struct Student{
@@ -218,7 +226,7 @@ void operation (void* hint, void* item){
 	*_item += *_hint;
 }
 
-void test_forEach_runs_task_for_every_integer (){
+void test_forEach_adds_hint_to_every_integer (){
 	int hint = 2;
 	int array[] = {1,2};
 	ArrayUtil util = initializeArrayUtil(array,INT_SIZE,2);
@@ -227,12 +235,60 @@ void test_forEach_runs_task_for_every_integer (){
 	assertEqual(array[0],3);
 }
 
+void toUpperCase (void* hint, void* item){
+	char* _item = (char*)item;
+	*_item = toupper(*_item);
+}
+
+void test_forEach_changes_each_character_to_uppercase (){
+	void* hint;
+	char array[] = "dollY";
+	ArrayUtil util = initializeArrayUtil(array,CHAR_SIZE,5);
+	void (*fn_ptr)(void*,void*) = &toUpperCase;
+	forEach(util,fn_ptr,hint);
+	assertEqual(array[0],68);
+}
+
 void* sum (void* hint, void* pv, void* cv){
 	int* _pv = (int*)pv;
 	int* _cv = (int*)cv;
 	int* result = (int*)malloc(INT_SIZE); 
 	*result = *_pv + *_cv;
 	return result;
+}
+
+void* addDecimals (void* hint, void* pv, void* cv){
+	float* _pv = (float*)pv;
+	float* _cv = (float*)cv;
+	float* result = (float*)malloc(INT_SIZE); 
+	*result = *_pv + *_cv;
+	return result;	
+}
+
+void test_reduce_returns_sum_of_all_floats_of_array (){
+	void* hint;
+	float initial_value = 0;
+	float array[] = {1.1,2.2,3.3};
+	ArrayUtil util = initializeArrayUtil(array,FLOAT_SIZE,3);
+	void* (*fn_ptr)(void*,void*,void*) = &addDecimals;
+	float res = *(float*)reduce(util,fn_ptr,hint,(void*)&initial_value);
+	assertEqual(res,(float)6.6);
+}
+
+void* greaterChar(void* hint, void* pv, void* cv){
+	int _pv = *(char*)pv;
+	int _cv = *(char*)pv;
+	return _pv > _cv ? pv : cv;
+}
+
+void test_reduce_concats_the_characters_of_array (){
+	void* hint;
+	char initial_value = 0;
+	char array[] = "doylo";
+	ArrayUtil util = initializeArrayUtil(array,CHAR_SIZE,5);
+	void* (*fn_ptr)(void*,void*,void*) = &greaterChar;
+	int res = *(char*)reduce(util,fn_ptr,hint,(void*)&initial_value);
+	assertEqual(res,111);
 }
 
 void test_reduce_returns_sum_of_all_integers_of_array (){
@@ -260,6 +316,22 @@ void test_count_returns_number_of_even_numbers_in_array_util (){
 	assertEqual(count(util,isMultipleOf_ptr,(void*)&hint),3);
 }
 
+void test_count_returns_number_of_vowels_in_array_util (){
+	char *array = "dolli";
+	void* hint;
+	int (*isVowel_ptr)(void*,void*) = &isVowel;
+	ArrayUtil util = initializeArrayUtil((void*)array,CHAR_SIZE,6);
+	assertEqual(count(util,isVowel_ptr,hint),2);
+}
+
+void test_count_returns_decimal_numbers_greater_than_2_in_array_util (){
+	float array[] = {1.0,5,7,3.0,1,9,2.2};
+	float hint = 2.0;
+	int (*isGreaterThanHint_ptr)(void*,void*) = &isGreaterThanHint;
+	ArrayUtil util = initializeArrayUtil((void*)array,FLOAT_SIZE,7);
+	assertEqual(count(util,isGreaterThanHint_ptr,(void*)&hint),5);
+}
+
 void test_findLast_returns_last_even_number_from_integer_array(){
 	int array[] = {1,2,4,5};
 	int hint = 2;
@@ -274,8 +346,8 @@ void test_findLast_returns_NULL_if_element_is_not_found(){
 	void* hint;
 	ArrayUtil util = initializeArrayUtil((void*)array,INT_SIZE,4);
 	int(*fn)(void*,void*) = &isEven;
-	int result = (int)findLast(util,fn,(void*)&hint);
-	assertEqual(result,'\0');
+	void* result = findLast(util,fn,(void*)&hint);
+	assertEqual((int)result,'\0');
 }
 
 void test_findLast_returns_last_vowel_from_char_array(){
@@ -285,6 +357,81 @@ void test_findLast_returns_last_vowel_from_char_array(){
 	int(*fn)(void*,void*) = &isVowel;
 	char* result = (char*)findLast(util,fn,(void*)&hint);
 	assertEqual(*result,'e');
+}
+
+void square_elements(void *hint, void *sourceItem, void *destinationItem){
+	*(int*)destinationItem=*(int*)sourceItem * *(int*)sourceItem;
+}
+
+void test_map_returns_square_of_each_element_in_array(){
+	void *hint;
+	int array[]={1,2,3,4,5};
+	int newArray[]={1,4,9,16,25};
+	ArrayUtil util={array,INT_SIZE,5};
+	ArrayUtil expected={newArray,INT_SIZE,5};
+	ArrayUtil mapped={calloc(5,INT_SIZE),INT_SIZE,5};
+	map(util,mapped,square_elements,&hint);
+	assert(areEqual(expected, mapped));
+}
+
+void toUpper (void* hint, void* sourceItem, void* destinationItem){
+	char _source = *(char*)sourceItem;
+	*(char*)destinationItem = toupper(_source);
+}
+
+void test_map_returns_upperCased_of_each_char_in_array(){
+	void *hint;
+	char array[]="abcd";
+	char newArray[]="ABCD";
+	ArrayUtil util={array,CHAR_SIZE,4};
+	ArrayUtil expected={newArray,CHAR_SIZE,4};
+	ArrayUtil mapped={calloc(4,CHAR_SIZE),CHAR_SIZE,4};
+	void(*toUpper_ptr)(void*,void*,void*) = &toUpper;
+	map(util,mapped,toUpper_ptr,&hint);
+	assert(areEqual(expected, mapped));
+}
+
+void toAscii (void* hint, void* src, void* dest){
+	char srcItem = *(char*)src;
+	*(int*)dest = srcItem;
+}
+
+void test_map_returns_ascii_of_each_char_in_array(){
+	void *hint;
+	char array[]="abcd";
+	int newArray[]={97,98,99,100};
+	ArrayUtil util={array,CHAR_SIZE,4};
+	ArrayUtil expected={newArray,INT_SIZE,4};
+	ArrayUtil mapped={calloc(4,INT_SIZE),INT_SIZE,4};
+	void(*toAscii_ptr)(void*,void*,void*) = &toAscii;
+	map(util,mapped,toAscii_ptr,&hint);
+	assert(areEqual(expected, mapped));
+}
+
+void test_filter_returns_only_even_numbers (){
+	int hint=2;
+	int maxItems = 4;
+	int array[] = {1,2,5,4,6,8};
+	void *dest[maxItems];
+	ArrayUtil util={array,INT_SIZE,6};
+	int(*isEven_ptr)(void*,void*) = &isEven;
+	assertEqual(filter(util,isEven_ptr,(void*)&hint,dest,maxItems),4);
+	assertEqual(*(int*)dest[0],array[1]);
+	assertEqual(*(int*)dest[1],array[3]);
+	assertEqual(*(int*)dest[2],array[4]);
+	assertEqual(*(int*)dest[3],array[5]);
+}
+
+void test_filter_returns_only_vowels(){
+	void* hint;
+	int maxItems = 2;
+	char array[] = "doolly";
+	void *dest[maxItems];
+	ArrayUtil util={array,CHAR_SIZE,6};
+	int(*isVowel_ptr)(void*,void*) = &isVowel;
+	assertEqual(filter(util,isVowel_ptr,(void*)&hint,dest,maxItems),2);
+	assertEqual(*(char*)dest[0],array[1]);
+	assertEqual(*(char*)dest[1],array[2]);
 }
 //------------------------------------------------------------------------------------------------------------------
 
@@ -330,6 +477,7 @@ void test_resize_add_0_to_the_new_places_created_in_float_array(){
 	float array[] = {1.1,2.2,3.2}, arr[] = {1.1,2.2,3.2,0.0,0.0};
 	ArrayUtil array2, util1 = {array, FLOAT_SIZE, 3};
 	ArrayUtil expected = {arr, FLOAT_SIZE ,5};
+
 	array2 =  resize(util1,5);
 	assert(areEqual(array2 , expected));
 	dispose(array2);
@@ -741,9 +889,6 @@ void test_findIndex_returns_index_of_the_integer_element_where_it_presents(){
     assertEqual(findIndex(util1,&element), 1);
 }
 
-int isGreaterThanHint (void* hint, void* element) {
-	return (*((float*)element) > *((float*)hint)) ? 1 : 0;
-}
 
 void test_findFirst_gives_occurence_of_first_element_in_floatArray_greaterThan5 (){
 	float hint = 5.1;
@@ -786,3 +931,161 @@ void test_findLast_returns_the_last_element_if_there_is_match_in_integer_array()
 	assertEqual(*((int*)findLast(a,isEven,&x)),10);
 }
 
+//-----Prasenjit-------
+
+int isDivisible(void* a,void *b){
+	return (*((int*)a)%*((int*)b) == 0) ? 1 : 0;
+}
+
+void intConvertFunc(void* hint, void* sourceItem, void* destinationItem){
+
+	*((int *)destinationItem) = *((int *)hint) + *((int *)sourceItem);
+}
+
+void charConvertFunc(void* hint, void* sourceItem, void* destinationItem){
+	*((char*)destinationItem) = *((char*)sourceItem) - 32;
+}
+
+void test_findLast_returns_null_if_there_is_no_match_in_integer_array(){
+	ArrayUtil a = {(int[]){1,3,5,7,9},sizeof(int),5};
+	int x = 2;
+	assertEqual((int)findLast(a,isEven,&x),'\0');
+}
+
+void test_map_gives_2_3_4_5_6_for_1_2_3_4_5_for_integer_array(){
+	ArrayUtil src = {(int[]){1,2,3,4,5},sizeof(int),5},dest = create(sizeof(int),5);
+	ArrayUtil tmp = {(int[]){2,3,4,5,6},sizeof(int),5};
+	int hint = 1;
+	map(src,dest,intConvertFunc,&hint);
+	assert(areEqual(dest,tmp)==1);
+	dispose(dest);
+}
+
+void test_map_gives_A_B_C_D_E_for_a_b_c_d_e_for_character_array(){
+	ArrayUtil src = {(char[]){'a','b','c','d','e'},sizeof(char),5},dest = create(sizeof(char),5);
+	ArrayUtil tmp = {(char[]){'A','B','C','D','E'},sizeof(char),5};
+	char hint = 32;
+	map(src,dest,charConvertFunc,&hint);
+	assertEqual(areEqual(dest,tmp),1);
+	dispose(dest);
+}
+
+//------------------------------------Maheshasur-----------------------------
+
+int isCapital(void *hint, void *item) {
+    return((*(char *)item >=65) && (*(char *)item <= 91));
+}
+
+int isGreaterThan5(void *hint, void *item) {
+    return(*(float *)item > 5);
+}
+
+void test_findFirst_returns_the_address_of_the_first_element_in_the_array_that_is_capital(){
+    char array1[] = {'k','M','k'};
+    ArrayUtil util1 = {array1,sizeof(char),3};
+    assertEqual(*(char *)(findFirst(util1,&isCapital,0)), 'M');
+}
+
+void test_findFirst_returns_the_address_of_the_first_element_in_the_array_that_is_even(){
+    int hint = 2;
+    int array1[] = {1,2,3,4,5};
+    ArrayUtil util1 = {array1,sizeof(int),5};
+    assertEqual(*(int *)(findFirst(util1,&isEven,(void*)&hint)), 2);
+}
+
+void test_findFirst_returns_the_adsdress_of_first_element_in_the_array_greater_than_5() {
+    float array1[] = {1.1,6.6,5.5,8.8,2.2};
+    ArrayUtil util1 ={array1, sizeof(float),5};
+    assertEqual(*(float *)(findFirst(util1,&isGreaterThan5,0)), (float)6.6);
+}
+
+//-------------------------------Parmatma-------------------------------
+
+int compare(void *hint,void* item){
+	if(*(char*)item=='a')
+		return 1;
+	return 0;
+};
+
+
+int stringCompare(void *hint, void* item){
+	String str ="hello";
+	String getItem = *(String*)item;
+	if(getItem==str)
+		return 1;
+	return 0;
+}
+
+int isEqual(void* hint, void* item){
+	int _item = *(int*)item;
+	int _hint = *(int*)hint;
+	printf("\nitem= %d hint= %d\n",_item,_hint );
+	if(_item == _hint)
+		return 1;
+	return 0;
+}
+
+
+/*
+void test_filter_will_return_the_array_a_a_a(){
+	char a[]={'a','a','a','b','d'},hint=3;
+	int length;
+	void* result;
+	ArrayUtil array = {a, sizeof(char), 5};
+	length = filter(array,compare,&hint,&result,5);
+
+	assertEqual(length,3);
+	assertEqual(((char*)result)[1],'a');
+};
+
+void test_filter_will_return_the_array_string_contain_hello(){
+	int length,hint=9;
+	void* result,*expected;
+	ArrayUtil array = create(sizeof(String),2);
+	((char**)array.base_ptr)[0]="hello";
+	((char**)array.base_ptr)[1]="gello";
+	length = filter(array,stringCompare,&hint,&result,2);
+	expected = ((String*)result)[0];
+	
+	assertEqual(length,1);
+	assertEqual(strcmp(expected,"hello"),0);
+};
+
+
+void test_filter_will_return_the_array_of_8_8_8(){
+	int a[]={1,8,8,7,8,9},hint=8,length;
+	int *result[3];
+	ArrayUtil array = {a,sizeof(int), 6};
+	length = filter(array,isEqual,&hint,(void**)&result,5);
+	assertEqual(length,3);
+	assertEqual(*result[0],8);
+	assertEqual(*result[1],8);
+	assertEqual(*result[2],8);
+};
+
+void test_filter_will_return_the_array_of_only_one_element_8_point_9_in_double(){
+	double a[]={8.4,8.4,8.9},hint=3.9;
+	int length;
+	void* result;
+	ArrayUtil array = {a, sizeof(double), 3};
+	length = filter(array,isEqual,&hint,&result,2);
+
+	assertEqual(((double*)result)[0],(float)8.9);
+	assertEqual(length,1);
+	free(result);
+};
+*/
+void test_filter_will_return_the_array_of_only_two_8_point_7_in_float(){
+	float a[]={1.4,8.4,8.9,7,8,9.0},hint=3;
+	int length;
+	float* result[5];
+	ArrayUtil array = {a, sizeof(float), 6};
+	length = filter(array,isGreaterThanHint,&hint,(void**)&result,5);
+
+	assertEqual(length,5);
+	assertEqual(*result[0],(float)8.4);
+	assertEqual(*result[1],(float)8.9);
+	assertEqual(*result[2],(float)7);
+	assertEqual(*result[3],(float)8);
+	assertEqual(*result[4],(float)9);
+};

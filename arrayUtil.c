@@ -70,52 +70,38 @@ void* findFirst (ArrayUtil util, int (*fn)(void*,void*),void* hint){
 	void* base = util.base_ptr;
 	void* target = util.base_ptr + util.typesize*util.length;
 	for(; base<=target; base+=util.typesize){
-		if(fn(hint,base))
+		if(fn(hint,base)){
 			return base;
+		}
 	}
 	return NULL;
 }
 
-/*void* findFirst (ArrayUtil util, int (*fn)(void*,void*),void* hint){
-	int i;
-	int base_util;
-	void *item;
-	for(i=0 ; i<util.length ; i++){
-		base_util = ((int*)util.base_ptr)[i];
-		item = &base_util;
-		if(fn(hint,item))
-			return item;
-	}
-	return NULL;
-}
-*/
 void forEach(ArrayUtil util, void (*operation)(void*, void*), void* hint){
-	int i;
-	int base;
-	void* base_of_ele;
-	for (i = 0 ; i<util.length ; i++) {
-		base = ((int*)util.base_ptr)[i];
-		base_of_ele = (void*)&base;
-		operation(hint,&((int*)util.base_ptr)[i]);
+	void* base = util.base_ptr;
+	void* target = base + util.length * util.typesize;
+	for (; base<target ; base+=util.typesize) {
+		operation(hint,base);
 	}
 };
 
 void* reduce(ArrayUtil util, void* (*reducer)(void*,void*,void*),void* hint,void* pv){
-	int i;
-	void* cv;
-	for(i=0 ; i<util.length ; i++){
-		cv = (void*)&((int*)util.base_ptr)[i];
-		pv = reducer(hint,pv,(cv));
+	void* base = util.base_ptr;
+	void* target = base + util.typesize*util.length;
+	for(; base<target ; base+=util.typesize){
+		pv = reducer(hint,pv,base);
 	}
 	return pv;
 };
 
 int count(ArrayUtil util, int (*fn_ptr)(void *, void *), void *hint){
-	int i,count =0;
-	void* base;
-	for(i=0 ; i<util.length ; i++) {
-		base = (void*)&((int*)util.base_ptr)[i];
-		fn_ptr(hint,base) && count++;
+	int count =0;
+	int res;
+	void* base = util.base_ptr;
+	void* target = base + (util.typesize * util.length);
+	for(; base<target ; base+=util.typesize) {
+		res = fn_ptr(hint,base);
+		res && count++;
 	}
 	return count;
 };
@@ -128,4 +114,25 @@ void* findLast(ArrayUtil util, int (*fn)(void*, void*), void* hint){
 			return (void*)target;
 	}
 	return NULL;
+}
+
+void map(ArrayUtil util1, ArrayUtil util2, void (*function)(void*, void*, void*), void* hint){
+	void* src = util1.base_ptr;
+	void* dest = util2.base_ptr;
+	int size = util1.typesize > util2.typesize ? util1.typesize : util2.typesize;
+	void* target = dest + util1.length*size;
+	for (; dest<target ; dest+=util2.typesize, src+=util1.typesize){
+		function(hint,src,dest);
+	}
+}
+
+int filter(ArrayUtil util, int(*function)(void*, void*), void* hint, void **destination, int maxItems){
+	int i,count=0;
+	void* base = util.base_ptr;
+	for (i=0 ; i<util.length ; base+=util.typesize,i++) {
+		if(function(hint,base)){
+			destination[count++] = base;
+		}
+	}
+	return count;
 }
