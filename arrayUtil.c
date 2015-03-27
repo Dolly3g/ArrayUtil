@@ -85,7 +85,7 @@ void forEach(ArrayUtil util, void (*operation)(void*, void*), void* hint){
 	}
 };
 
-void* reduce(ArrayUtil util, void* (*reducer)(void*,void*,void*),void* hint,void* pv){
+void* reduce(ArrayUtil util, void* (*reducer)(void*,void*,void*), void* hint, void* pv){
 	void* base = util.base_ptr;
 	void* target = base + util.typesize*util.length;
 	for(; base<target ; base+=util.typesize){
